@@ -1,0 +1,48 @@
+{
+    "name": "hdaklue/polish",
+    "description": "A Laravel package for data polishing and transformation",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Hassan Ibrahim",
+            "email": "hassan@daklue.com"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "illuminate/support": "^9.0|^10.0|^11.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^7.0|^8.0|^9.0",
+        "pestphp/pest": "^2.34",
+        "pestphp/pest-plugin-laravel": "^2.4",
+        "phpstan/phpstan": "^1.0",
+        "phpunit/phpunit": "^9.0|^10.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Hdaklue\\Polish\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Hdaklue\\Polish\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Hdaklue\\Polish\\PolishServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
