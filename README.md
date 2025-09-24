@@ -53,15 +53,28 @@ When you need to change from 6 to 7 characters, you update it in one place and i
 composer require hdaklue/polish
 ```
 
-The package will auto-register with Laravel. Optionally publish the config:
-
-```bash
-php artisan vendor:publish --tag=polish-config
-```
+The package will auto-register with Laravel.
 
 ## Basic Usage
 
-Create a polisher by extending the `BasePolisher` class:
+### Generating Polishers
+
+Use the artisan command to generate a new polisher:
+
+```bash
+php artisan polisher:make Document
+# Creates: App\Polishers\DocumentPolisher
+
+php artisan polisher:make User/Profile  
+# Creates: App\Polishers\User\ProfilePolisher
+
+php artisan polisher:make Payment/Card
+# Creates: App\Polishers\Payment\CardPolisher
+```
+
+### Manual Creation
+
+Alternatively, create a polisher by extending the `BasePolisher` class:
 
 ```php
 <?php
@@ -77,7 +90,7 @@ class UlidPolisher extends BasePolisher
         return substr($ulid, -7); // Changed from 6 to 7 — everywhere updates
     }
     
-    public static function formatted(string $ulid): string
+    public static function polish(string $ulid): string
     {
         return sprintf('v-%s', static::short($ulid));
     }
@@ -96,17 +109,20 @@ Tables\Columns\TextColumn::make('version_id')
 #[Computed]
 public function displayVersion(): string
 {
-    return UlidPolisher::formatted($this->version_id);
+    return UlidPolisher::polish($this->version_id);
 }
 
 // In Blade
 {{ UlidPolisher::short($model->version_id) }}
+{{ UlidPolisher::polish($model->version_id) }}
 
 // In API Resources
-'version' => UlidPolisher::short($this->version_id)
+'version' => UlidPolisher::short($this->version_id),
+'formatted_version' => UlidPolisher::polish($this->version_id)
 
 // In DTOs, transformers, anywhere
 $dto->version = UlidPolisher::short($rawData['version_id']);
+$dto->display_version = UlidPolisher::polish($rawData['version_id']);
 ```
 
 ## Use Cases

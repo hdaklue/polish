@@ -3,6 +3,7 @@
 namespace Hdaklue\Polish;
 
 use Illuminate\Support\ServiceProvider;
+use Hdaklue\Polish\Console\Commands\MakePolisherCommand;
 
 class PolishServiceProvider extends ServiceProvider
 {
@@ -19,6 +20,10 @@ class PolishServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                MakePolisherCommand::class,
+            ]);
+        }
     }
 }

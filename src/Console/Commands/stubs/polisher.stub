@@ -1,0 +1,14 @@
+<?php
+
+namespace {{ namespace }};
+
+use Hdaklue\Polish\BasePolisher;
+
+class {{ class }} extends BasePolisher
+{
+    public static function polish($value): string
+    {
+        // Add your polishing logic here
+        return (string) $value;
+    }
+}
