@@ -65,7 +65,7 @@ class StringPolisher extends BasePolisher
 
     public static function mention(string $value): string
     {
-        return '@' . Str::slug($value);
+        return '@' . Str::snake($value);
     }
 
     public static function hashtag(string $value): string

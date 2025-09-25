@@ -115,9 +115,11 @@ test('initials method handles empty and extra spaces', function () {
 
 test('mention method creates mention format', function () {
     expect(StringPolisher::mention('John Doe'))
-        ->toBe('@john-doe')
+        ->toBe('@john_doe')
         ->and(StringPolisher::mention('User Name 123'))
-        ->toBe('@user-name-123');
+        ->toBe('@user_name123')
+        ->and(StringPolisher::mention('user name 12'))
+        ->toBe('@user_name12');
 });
 
 test('hashtag method creates hashtag format', function () {

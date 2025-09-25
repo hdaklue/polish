@@ -223,7 +223,7 @@ StringPolisher::initials('John Doe');                    // "JD"
 StringPolisher::initials('John Michael Smith', 3);       // "JMS"
 
 // Social media formatting  
-StringPolisher::mention('John Doe');                     // "@john-doe"
+StringPolisher::mention('John Doe');                     // "@john_doe"
 StringPolisher::hashtag('React Native');                 // "#ReactNative"
 ```
 
