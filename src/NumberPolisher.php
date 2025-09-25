@@ -11,18 +11,18 @@ class NumberPolisher extends BasePolisher
         $abs = abs($value);
         $lastTwoDigits = $abs % 100;
         $lastDigit = $abs % 10;
-        
+
         if ($lastTwoDigits >= 11 && $lastTwoDigits <= 13) {
             $suffix = 'th';
         } else {
-            $suffix = match($lastDigit) {
+            $suffix = match ($lastDigit) {
                 1 => 'st',
-                2 => 'nd', 
+                2 => 'nd',
                 3 => 'rd',
-                default => 'th'
+                default => 'th',
             };
         }
-        
+
         return $value . $suffix;
     }
 
@@ -38,11 +38,21 @@ class NumberPolisher extends BasePolisher
         }
 
         $romanNumerals = [
-            1000 => 'M', 900 => 'CM', 500 => 'D', 400 => 'CD',
-            100 => 'C', 90 => 'XC', 50 => 'L', 40 => 'XL',
-            10 => 'X', 9 => 'IX', 5 => 'V', 4 => 'IV', 1 => 'I'
+            1000 => 'M',
+            900 => 'CM',
+            500 => 'D',
+            400 => 'CD',
+            100 => 'C',
+            90 => 'XC',
+            50 => 'L',
+            40 => 'XL',
+            10 => 'X',
+            9 => 'IX',
+            5 => 'V',
+            4 => 'IV',
+            1 => 'I',
         ];
-        
+
         $result = '';
         foreach ($romanNumerals as $decimal => $numeral) {
             while ($value >= $decimal) {
@@ -50,7 +60,7 @@ class NumberPolisher extends BasePolisher
                 $value -= $decimal;
             }
         }
-        
+
         return $result;
     }
 
@@ -61,10 +71,12 @@ class NumberPolisher extends BasePolisher
 
     public static function rating(float $value, int $max = 5): string
     {
-        $full = str_repeat('★', floor($value));
-        $half = ($value - floor($value)) >= 0.5 ? '☆' : '';
-        $empty = str_repeat('☆', $max - ceil($value));
-        
-        return $full . $half . $empty;
+        $fullCount = floor($value);
+        $hasHalf = ($value - $fullCount) >= 0.5;
+        $emptyCount = $max - $fullCount - ($hasHalf ? 1 : 0);
+        $full = str_repeat('★', $fullCount);
+        $half = $hasHalf ? '☆' : '';
+        $empty = str_repeat('☆', $emptyCount);
+        return "$full$half$empty";
     }
 }
