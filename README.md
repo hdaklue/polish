@@ -23,8 +23,10 @@ Sure, you could use Eloquent accessors, but that only works when you have a mode
 - [The Solution](#the-solution)
 - [Installation](#installation)
 - [Basic Usage](#basic-usage)
+- [Built-in Polishers](#built-in-polishers)
 - [Use Cases](#use-cases)
 - [Framework Integration](#framework-integration)
+- [Creating Custom Polishers](#creating-custom-polishers)
 - [Advanced Features](#advanced-features)
 - [Why Polish?](#why-polish)
 - [Requirements](#requirements)
@@ -123,6 +125,69 @@ public function displayVersion(): string
 // In DTOs, transformers, anywhere
 $dto->version = UlidPolisher::short($rawData['version_id']);
 $dto->display_version = UlidPolisher::polish($rawData['version_id']);
+```
+
+## Built-in Polishers
+
+Polish comes with two powerful polishers that complement Laravel's built-in formatting:
+
+### NumberPolisher
+
+Advanced number formatting beyond Laravel's `Number` class:
+
+```php
+use Hdaklue\Polish\NumberPolisher;
+
+// Ordinal numbers
+NumberPolisher::ordinal(1);    // "1st"
+NumberPolisher::ordinal(22);   // "22nd" 
+NumberPolisher::ordinal(103);  // "103rd"
+
+// Roman numerals (1-399)
+NumberPolisher::roman(42);     // "XLII"
+NumberPolisher::roman(399);    // "CCCXCIX"
+NumberPolisher::roman(400);    // "400" (fallback)
+
+// Number ranges
+NumberPolisher::range(10, 20);           // "10–20"
+NumberPolisher::range(1, 5, ' to ');     // "1 to 5"
+
+// Score formatting
+NumberPolisher::score(85, 100);          // "85/100"
+NumberPolisher::score(7, 10);            // "7/10"
+
+// Star ratings
+NumberPolisher::rating(4.5);             // "★★★★☆"
+NumberPolisher::rating(7.5, 10);         // "★★★★★★★☆☆☆"
+```
+
+### StringPolisher
+
+Advanced string operations beyond Laravel's `Str` class:
+
+```php
+use Hdaklue\Polish\StringPolisher;
+
+// Smart masking with patterns
+StringPolisher::smartMask('john@email.com', 'email');    // "jo****@email.com"
+StringPolisher::smartMask('555-123-4567', 'phone');      // "555-***-4567"
+StringPolisher::smartMask('4111-1111-1111-1111', 'card'); // "4111-****-****-1111"
+
+// Intelligent excerpts with keyword centering
+$text = 'Long article with important keyword somewhere in middle...';
+StringPolisher::excerpt($text, 50, 'keyword');           // "...important keyword somewhere..."
+
+// Technical string humanization
+StringPolisher::humanize('user_profile_api');            // "User Profile API"
+StringPolisher::humanize('payment-gateway-config');      // "Payment Gateway Config"
+
+// Name initials
+StringPolisher::initials('John Doe');                    // "JD"
+StringPolisher::initials('John Michael Smith', 3);       // "JMS"
+
+// Social media formatting  
+StringPolisher::mention('John Doe');                     // "@john-doe"
+StringPolisher::hashtag('React Native');                 // "#ReactNative"
 ```
 
 ## Use Cases
@@ -259,6 +324,147 @@ class OrderResource extends JsonResource
     }
 }
 ```
+
+## Creating Custom Polishers
+
+Polish is designed to be extended with your own creative polishers. Here's how to build powerful, reusable formatting logic:
+
+### Business-Specific Polishers
+
+```php
+// E-commerce specific formatting
+class ProductPolisher extends BasePolisher
+{
+    public static function sku(string $sku): string
+    {
+        return strtoupper(substr($sku, 0, 3) . '-' . substr($sku, 3));
+    }
+    
+    public static function availability(int $stock): string
+    {
+        return match(true) {
+            $stock === 0 => '🔴 Out of Stock',
+            $stock < 5 => '🟡 Low Stock (' . $stock . ' left)',
+            $stock < 20 => '🟢 In Stock (' . $stock . ' available)',
+            default => '🟢 In Stock (20+ available)'
+        };
+    }
+    
+    public static function badge(float $rating, int $reviews): string
+    {
+        if ($reviews < 10) return '';
+        if ($rating >= 4.5) return '⭐ Bestseller';
+        if ($rating >= 4.0) return '👍 Recommended';
+        return '';
+    }
+}
+```
+
+### Creative Data Formatting
+
+```php
+// Fun and creative formatters
+class CreativePolisher extends BasePolisher
+{
+    public static function progress(int $current, int $total): string
+    {
+        $percentage = ($current / $total) * 100;
+        $filled = floor($percentage / 10);
+        return str_repeat('█', $filled) . str_repeat('░', 10 - $filled) . " {$percentage}%";
+    }
+    
+    public static function mood(string $sentiment): string
+    {
+        return match($sentiment) {
+            'positive' => '😊 ' . $sentiment,
+            'negative' => '😞 ' . $sentiment,  
+            'neutral' => '😐 ' . $sentiment,
+            default => '🤷 unknown'
+        };
+    }
+    
+    public static function fileIcon(string $extension): string
+    {
+        return match($extension) {
+            'pdf' => '📄',
+            'jpg', 'png', 'gif' => '🖼️',
+            'mp4', 'mov' => '🎬',
+            'mp3', 'wav' => '🎵',
+            'zip', 'tar' => '🗜️',
+            default => '📁'
+        };
+    }
+}
+```
+
+### Integration Polishers
+
+```php
+// API and external service formatters  
+class IntegrationPolisher extends BasePolisher
+{
+    public static function githubUrl(string $repo): string
+    {
+        return "https://github.com/{$repo}";
+    }
+    
+    public static function slackMention(string $userId): string
+    {
+        return "<@{$userId}>";
+    }
+    
+    public static function discordEmbed(string $title, string $description): array
+    {
+        return [
+            'embeds' => [[
+                'title' => $title,
+                'description' => $description,
+                'color' => 0x00ff00
+            ]]
+        ];
+    }
+}
+```
+
+### Domain-Specific Logic
+
+Be as creative as your domain requires:
+
+- **Legal**: Case numbers, statute formatting, citation styles
+- **Medical**: Dosage formatting, medical record numbers
+- **Financial**: Transaction IDs, account masking, audit trails
+- **Gaming**: Player stats, achievement badges, leaderboards  
+- **Education**: Grade formatting, student IDs, course codes
+- **Real Estate**: Property codes, listing formats, MLS numbers
+
+### Best Practices
+
+1. **Keep methods focused** - Each method should do one thing well
+2. **Use descriptive names** - `formatCurrency()` is better than `format()`
+3. **Handle edge cases** - Always consider null, empty, or invalid inputs
+4. **Document your methods** - Add docblocks for complex formatters
+5. **Test thoroughly** - Write tests for all your polisher methods
+
+```php
+class MyPolisher extends BasePolisher
+{
+    /**
+     * Format a complex business identifier with validation
+     */
+    public static function businessId(string $id): string
+    {
+        if (empty($id) || strlen($id) < 6) {
+            return $id; // Return as-is for invalid input
+        }
+        
+        return strtoupper(substr($id, 0, 2)) . '-' . 
+               substr($id, 2, 4) . '-' . 
+               substr($id, 6);
+    }
+}
+```
+
+The goal is to eliminate scattered formatting logic and create a clean, testable, and maintainable system for your presentation layer.
 
 ## Advanced Features
 
